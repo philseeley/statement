@@ -242,7 +242,7 @@ public class Frame extends JFrame
   private void setFlag(Flag flag)
   {
     for(int i : _table.getSelectedRows())
-      _controller.getTableModel().setEntry(i, flag);
+      _controller.getTableModel().setEntry(_table.convertRowIndexToModel(i), flag);
     
     resetFilter(_filtered);
   }

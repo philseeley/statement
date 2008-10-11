@@ -11,7 +11,7 @@
     </delete>
   </target>
   <target name="jaxb">
-    <exec executable="xjc.exe" failonerror="true">
+    <exec executable="xjc" failonerror="true">
       <arg line="-p ${jaxb.package}" />
       <arg line="-d ${src.dir}" />
       <arg line="statement.xsd" />
