@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="1.0">
+
+  <xs:element name="Statement">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element name="entry" type="Entry" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Entry">
+    <xs:sequence>
+      <xs:element name="date" type="xs:date" />
+      <xs:element name="bankTLA" type="xs:string" />
+      <xs:element name="descr" type="xs:string" />
+      <xs:element name="value" type="xs:float" />
+      <xs:element name="flag" type="Flag" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="Flag">
+    <xs:restriction base="xs:NCName">
+      <xs:enumeration value="NONE" />
+      <xs:enumeration value="CHECKED" />
+      <xs:enumeration value="MISSING" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

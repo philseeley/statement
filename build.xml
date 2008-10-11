@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Statement" default="all" basedir=".">
+  <property file="build.properties" />
+  <target name="all" depends="jaxb,compile,jar">
+  </target>
+  <target name="clean">
+    <delete includeemptydirs="true" quiet="true">
+      <fileset dir="${bin.dir}" />
+      <fileset dir="${jaxb.package.path}" />
+      <fileset file="${jar}" />
+    </delete>
+  </target>
+  <target name="jaxb">
+    <exec executable="xjc.exe" failonerror="true">
+      <arg line="-p ${jaxb.package}" />
+      <arg line="-d ${src.dir}" />
+      <arg line="statement.xsd" />
+    </exec>
+  </target>
+  <target name="compile">
+    <mkdir dir="${bin.dir}" />
+    <javac destdir="${bin.dir}">
+      <src path="${src.dir}" />
+    </javac>
+  </target>
+  <target name="jar">
+    <jar destfile="${jar}">
+      <fileset dir="." includes="banks.txt" />
+      <fileset dir="." includes="icons/*" />
+      <fileset dir="." includes="help/*" />
+      <fileset dir="bin" includes="name/**/*.class" />
+      <manifest>
+        <attribute name="Main-Class" value="name.seeley.phil.statement.Main" />
+      </manifest>
+    </jar>
+  </target>
+</project>

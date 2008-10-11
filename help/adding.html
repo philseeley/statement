@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<body>
+<h1>Adding Support for a Bank</h1>
+<b>Statement</b> has been designed to allow support for new banks to be easily added.
+<p>
+To add support for your online bank account:
+<ol>
+<li>Un-jar <b>statement.jar</b>.</li>
+<li>Implement a class that supports the <b>Bank</b> interface.</li>
+<li>Add the new class name to <b>banks.txt</b>.</li>
+<li>Write a help file for your bank.</li>
+<li>Re-jar <b>statement.jar</b> including your new class and help file.</li>
+</ol>
+<h2>Bank Interface</h2>
+The <b>Bank</b> interface is:
+<pre>
+public interface Bank
+{
+  public List<Entry> parse(ObjectFactory factory, File file) throws Exception;
+  
+  public String bankTLA();
+  public String description();
+  public String extension();
+  public String help();
+}
+</pre>
+Your bank may change their download format in the future, so it is suggested that the new
+class name include a version number, e.g. Tesco01.
+<p>
+The <b>bankTLA()</b> method should return a Three Letter Abbreviation for your bank.
+The file type drop-down on the import <img src="../icons/list-add.png"/> dialogue
+will show the TLAs already used.
+<p>
+The <b>description()</b> method should return a description of the bank and the expected
+download format, e.g. "Tesco&nbsp;tab&nbsp;separated,&nbsp;v1". 
+<p>
+The <b>extension()</b> method should return the file extension of the downloaded statements,
+e.g. "tsv".
+<p>
+The <b>help()</b> method should return the filename of the bank's help file,
+e.g. "help/tesco01.html". The help file should provide instructions for downloading
+statements from your online bank.
+<p>
+The <b>parse()</b> method should return the list of <b>Entry</b>s from the <b>File</b>.
+The following code shows an example implementation:
+<pre>
+  public List&lt;Entry&gt; parse(ObjectFactory factory, File file) throws Exception
+  {
+    List&lt;Entry&gt; entries = new ArrayList&lt;Entry&gt;();
+
+    BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO-8859-1"));
+      
+    r.readLine(); // Discard header comment line
+    
+    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+    NumberFormat nf = DecimalFormat.getCurrencyInstance();
+    
+    String l;
+    while((l = r.readLine()) != null)
+    {
+      String[] t = l.split("\t");
+
+      Date d = df.parse(t[0]);
+      
+      GregorianCalendar c = new GregorianCalendar();
+      c.setTime(d);
+      
+      XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+
+      Entry e = factory.createEntry();
+
+      e.setDate(xc);
+      e.setDescr(t[1]+" - "+t[2]);
+      e.setValue(nf.parse(t[4]).floatValue());
+      
+      entries.add(e);
+    }
+    
+    return entries;
+  }
+</pre>
+Note:
+<ul>
+<li>The use of the <b>factory.createEntry()</b> call to create each list <b>Entry</b>.</li>
+<li>The conversion to <b>XMLGregorianCalendar</b>. JAXB is used to save and load the
+imported entries and uses this class for dates.</li>
+<li>The calls to <b>setDate()</b>, <b>setDescr()</b> and <b>setValue()</b>
+for each <b>Entry</b>.</li>
+<ul>
+</body>
+</html>
