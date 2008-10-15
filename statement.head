@@ -1,7 +1,7 @@
 #!/bin/bash
 
-jar=/tmp/__statement.jar
+jar=/tmp/__statement.$(id -un).jar
 
-tail -c +86 $0 > $jar
+tail -c +96 $0 > $jar
 
 exec java -jar $jar $*
