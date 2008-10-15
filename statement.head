@@ -1,0 +1,7 @@
+#!/bin/bash
+
+jar=/tmp/__statement.jar
+
+tail -c +86 $0 > $jar
+
+exec java -jar $jar $*
