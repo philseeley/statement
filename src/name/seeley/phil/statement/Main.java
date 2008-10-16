@@ -14,7 +14,7 @@ public class Main
       c.setVisible(true);
       
       if(args.length > 0)
-        c.openFile(new File(args[0]));
+        c.open(new File(args[0]));
     }
     catch(Exception e)
     {

@@ -79,6 +79,11 @@ public class Controller
     return JOptionPane.showConfirmDialog(_frame, msg, "Confirm", JOptionPane.YES_NO_OPTION);
   }
   
+  private void showMsg(String msg)
+  {
+    JOptionPane.showMessageDialog(_frame, msg, "Information", JOptionPane.INFORMATION_MESSAGE);
+  }
+  
   public void setSize(int width, int height)
   {
     _frame.setSize(width, height);
@@ -108,7 +113,7 @@ public class Controller
     System.exit(0);
   }
 
-  public void openFile(File f)
+  public void open(File f)
   {
     try
     {
@@ -130,51 +135,66 @@ public class Controller
     }
   }
   
-  public void open()
+  public void openFile()
   {
     if(_tableModel.getChanged())
       if(showConfirm("Discard changes?") != JOptionPane.YES_OPTION)
         return;
-    
+
     if(_fileChooser.showOpenDialog(_frame) == JFileChooser.APPROVE_OPTION)
     {
       File f = _fileChooser.getSelectedFile();
       
-      openFile(f);
+      open(f);
     }
   }
 
   public void save()
   {
-    _fileChooser.setSelectedFile(_file);
-    
+    try
+    {
+      OutputStream os = new FileOutputStream(_file);
+      _marshaller.marshal(_tableModel.getStatement(), os);
+      os.close();
+        
+      _tableModel.setChanged(false);
+
+      _frame.setTitle(_file.getCanonicalPath());
+      
+      showMsg("File '"+_file.getName()+"'saved");
+    }
+    catch(Exception e)
+    {
+      showError(e);
+    }
+  }
+
+  public void saveFile()
+  {
+    if(_file == null)
+      saveFileAs();
+    else
+      save();
+  }
+
+  public void saveFileAs()
+  {
     if(_fileChooser.showSaveDialog(_frame) == JFileChooser.APPROVE_OPTION)
     {
       File f = _fileChooser.getSelectedFile();
   
-      if(f.exists())
-        if(showConfirm("Overwrite file?") != JOptionPane.YES_OPTION)
-          return;
-
       String ext = "."+FILE_EXT;
       
       if(f.getName().lastIndexOf(ext) == -1)
         f = new File(f.getAbsolutePath()+ext);
 
-      try
-      {
-        OutputStream os = new FileOutputStream(f);
-        _marshaller.marshal(_tableModel.getStatement(), os);
-        os.close();
-        
-        _tableModel.setChanged(false);
+      if(f.exists())
+          if(showConfirm("Overwrite file '"+f.getName()+"?") != JOptionPane.YES_OPTION)
+            return;
 
-        _frame.setTitle(f.getCanonicalPath());
-      }
-      catch(Exception e)
-      {
-        showError(e);
-      }
+      _file = f;
+      
+      save();
     }
   }
 

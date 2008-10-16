@@ -81,12 +81,16 @@ public class Frame extends JFrame
     toolBar.setFloatable(false);
 
     a = new AbstractAction("Open", IconUtil.load("document-open"))
-    {public void actionPerformed(ActionEvent e){_controller.open();}};
+    {public void actionPerformed(ActionEvent e){_controller.openFile();}};
     addAction(a, fileMenu, toolBar, KeyEvent.VK_O, ActionEvent.CTRL_MASK);
 
     a = new AbstractAction("Save", IconUtil.load("document-save"))
-    {public void actionPerformed(ActionEvent e){_controller.save();}};
+    {public void actionPerformed(ActionEvent e){_controller.saveFile();}};
     addAction(a, fileMenu, toolBar, KeyEvent.VK_S, ActionEvent.CTRL_MASK);
+
+    a = new AbstractAction("Save As...", IconUtil.load("document-save-as"))
+    {public void actionPerformed(ActionEvent e){_controller.saveFileAs();}};
+    addAction(a, fileMenu, null, 0, 0);
 
     toolBar.addSeparator();
     
