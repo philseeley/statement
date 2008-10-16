@@ -30,6 +30,7 @@ public class Controller
   private Marshaller        _marshaller = _jaxbContext.createMarshaller();
   private Unmarshaller      _unMarshaller = _jaxbContext.createUnmarshaller();
   private Frame             _frame;
+  private File				_file;
   private JFileChooser      _importFileChooser;
   private JFileChooser      _fileChooser;
   private EntryTableModel   _tableModel = new EntryTableModel();
@@ -111,8 +112,12 @@ public class Controller
   {
     try
     {
-      _frame.setTitle(f.getCanonicalPath());
+      _file = f;
+      
+      _frame.setTitle(_file.getCanonicalPath());
 
+      _fileChooser.setCurrentDirectory(_file.getParentFile());
+      
       Statement s = (Statement) _unMarshaller.unmarshal(f);
   
       _tableModel.setStatement(s);
@@ -141,6 +146,8 @@ public class Controller
 
   public void save()
   {
+    _fileChooser.setSelectedFile(_file);
+    
     if(_fileChooser.showSaveDialog(_frame) == JFileChooser.APPROVE_OPTION)
     {
       File f = _fileChooser.getSelectedFile();
