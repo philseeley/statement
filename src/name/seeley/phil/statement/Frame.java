@@ -1,8 +1,9 @@
 package name.seeley.phil.statement;
 
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
@@ -12,11 +13,12 @@ import name.seeley.phil.statement.jaxb.Flag;
 @SuppressWarnings("serial")
 public class Frame extends JFrame
 {
-  private Controller  _controller;
-  private JTable      _table;
-  private JTextField  _filterField;
-  private HelpDialog  _helpDialog = new HelpDialog();
-  private boolean     _filtered = false;
+  private Controller        _controller;
+  private JTable            _table;
+  private JTextField        _filterField;
+  private HelpDialog        _helpDialog = new HelpDialog();
+  private boolean           _filtered = false;
+  private List<ButtonModel> _buttonModels = new ArrayList<ButtonModel>();
   
   private class HelpAction extends AbstractAction
   {
@@ -44,12 +46,20 @@ public class Frame extends JFrame
     
     Action a;
 
+    // Let the window manager determine the initial location.
+    
     setLocationByPlatform(true);
+    
+    // The controller should handle the exit.
+    
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     
     addWindowListener(new WindowAdapter()
       {public void windowClosing(WindowEvent e){_controller.exit();}});
 
+    // The main components are arranged around the border of the content pane, with
+    // a scrollable table of entries in the middle. 
+    
     Container contentPane = getContentPane();
     contentPane.setLayout(new BorderLayout());
 
@@ -67,18 +77,19 @@ public class Frame extends JFrame
       c.setCellRenderer(_controller.getTableModel().getCellRenderer(i));
     }
     
-    JPanel topPannel = new JPanel(new BorderLayout());
-    contentPane.add(topPannel, BorderLayout.NORTH);
-
+    // Most operations are available from the menus and the toolbar.
+    
     JMenuBar menuBar = new JMenuBar();
-    topPannel.add(menuBar, BorderLayout.NORTH);
-
-    JMenu fileMenu = new JMenu("File");
-    menuBar.add(fileMenu);
+    setJMenuBar(menuBar);
 
     JToolBar toolBar = new JToolBar();
-    topPannel.add(toolBar, BorderLayout.SOUTH);
+    contentPane.add(toolBar, BorderLayout.NORTH);
     toolBar.setFloatable(false);
+
+    // File menu.
+    
+    JMenu fileMenu = new JMenu("File");
+    menuBar.add(fileMenu);
 
     a = new AbstractAction("Open", IconUtil.load("document-open"))
     {public void actionPerformed(ActionEvent e){_controller.openFile();}};
@@ -102,12 +113,17 @@ public class Frame extends JFrame
     {public void actionPerformed(ActionEvent e){_controller.exit();}};
     addAction(a, fileMenu, null, KeyEvent.VK_Q, ActionEvent.CTRL_MASK);
 
+    // Edit menu. Note that the actions for setting the entry's states
+    // are also added to this menu later.
+    
     JMenu editMenu = new JMenu("Edit");
     menuBar.add(editMenu);
 
     a = new AbstractAction("Delete", IconUtil.load("user-trash"))
     {public void actionPerformed(ActionEvent e){delete();}};
     addAction(a, editMenu, toolBar, 0, 0);
+    
+    // View menu.
     
     JMenu viewMenu = new JMenu("View");
     menuBar.add(viewMenu);
@@ -116,24 +132,28 @@ public class Frame extends JFrame
 
     a = new AbstractAction("Show All", IconUtil.load("view-refresh"))
     {public void actionPerformed(ActionEvent e){showAll();}};
-    addAction(a, viewMenu, toolBar, KeyEvent.VK_ESCAPE, 0);
+    addAction(a, viewMenu, toolBar, 0, 0);
 
+    // The view toggle buttons.
+    
     toolBar.addSeparator();
 
     toolBar.add(new JLabel(viewMenu.getText()+":"));
     
     a = new AbstractAction("None", FlagInfo.getInfo(Flag.NONE).getIcon())
     {public void actionPerformed(ActionEvent e){_controller.setView(e, Flag.NONE);}};
-    addToggleAction(a, _controller.getViewModels(), viewMenu, toolBar, 0);
+    addToggleAction(a, viewMenu, toolBar, 0);
 
     a = new AbstractAction("Checked", FlagInfo.getInfo(Flag.CHECKED).getIcon())
     {public void actionPerformed(ActionEvent e){_controller.setView(e, Flag.CHECKED);}};
-    addToggleAction(a, _controller.getViewModels(), viewMenu, toolBar, 0);
+    addToggleAction(a, viewMenu, toolBar, 0);
 
     a = new AbstractAction("Missing", FlagInfo.getInfo(Flag.MISSING).getIcon())
     {public void actionPerformed(ActionEvent e){_controller.setView(e, Flag.MISSING);}};
-    addToggleAction(a, _controller.getViewModels(), viewMenu, toolBar, 0);
+    addToggleAction(a, viewMenu, toolBar, 0);
 
+    // The filter field only takes numbers.
+    
     _filterField = new JTextField();
     toolBar.add(_filterField);
     _filterField.addKeyListener(new KeyAdapter()
@@ -145,11 +165,19 @@ public class Frame extends JFrame
       }
     });
 
+    // The filter can be started by simply pressing return.
+    
     a = new AbstractAction("Filter", IconUtil.load("edit-find"))
     {public void actionPerformed(ActionEvent e){filter();}};
-
     addAction(a, viewMenu, toolBar, KeyEvent.VK_ENTER, 0);
 
+    a = new AbstractAction("Clear", IconUtil.load("edit-clear"))
+    {public void actionPerformed(ActionEvent e){clear();}};
+    addAction(a, viewMenu, toolBar, KeyEvent.VK_ESCAPE, 0);
+
+    // The buttons for setting the state of the selected entries.
+    // Note that these are added to the Edit menu.
+    
     toolBar.addSeparator();
     
     a = new AbstractAction("Checked", FlagInfo.getInfo(Flag.CHECKED).getIcon())
@@ -164,6 +192,8 @@ public class Frame extends JFrame
     {public void actionPerformed(ActionEvent e){setFlag(Flag.NONE);}};
     addAction(a, editMenu, toolBar, KeyEvent.VK_R, ActionEvent.CTRL_MASK);
 
+    // Help menu.
+    
     JMenu helpMenu = new JMenu("Help");
     menuBar.add(helpMenu);
 
@@ -171,6 +201,8 @@ public class Frame extends JFrame
     {public void actionPerformed(ActionEvent e){_helpDialog.showHelp("help/index.html");}};
     addAction(a, helpMenu, null, KeyEvent.VK_F1, 0);
 
+    // Each supported bank should have its own help.
+    
     JMenu bankHelpMenu = new JMenu("Banks");
     helpMenu.add(bankHelpMenu);
     
@@ -201,10 +233,10 @@ public class Frame extends JFrame
       toolBar.add(b);
   }
 
-  private void addToggleAction(Action action, List<ButtonModel> list, JMenu menu, JToolBar toolBar, int keyEvent)
+  private void addToggleAction(Action action, JMenu menu, JToolBar toolBar, int keyEvent)
   {
     ButtonModel bm = new JToggleButton.ToggleButtonModel();
-    list.add(bm);
+    _buttonModels.add(bm);
     
     JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem(action);
     
@@ -226,7 +258,7 @@ public class Frame extends JFrame
       toolBar.add(cb);
   }
 
-  public void resetFilter(boolean resetFocus)
+  private void resetFilter(boolean resetFocus)
   {
     _filterField.setText(null);
 
@@ -238,7 +270,17 @@ public class Frame extends JFrame
   
   public void showAll()
   {
+    for(ButtonModel bm : _buttonModels)
+      bm.setSelected(true);
+    
     _controller.showAll();
+    
+    resetFilter(true);
+  }
+  
+  private void clear()
+  {
+    _controller.filter(null);
 
     resetFilter(true);
   }
@@ -268,10 +310,17 @@ public class Frame extends JFrame
     {
       float f = Float.parseFloat(_filterField.getText());
   
-      _controller.getTableModel().filter(f);
+      _controller.filter(f);
+      
+      // By default select/highlight the first row as this is usually the
+      // one to check.
       
       _table.changeSelection(0, 0, false, false);
 
+      // If there is more than one entry found, then put the keyboard
+      // focus on the list so that the arrow keys can be used to select
+      // the correct entry.
+      
       if(_table.getRowCount() > 1)
         _table.requestFocus();
       

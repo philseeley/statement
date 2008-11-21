@@ -43,6 +43,7 @@ public class EntryTableModel extends AbstractTableModel
   private Statement           _statement;
   private List<Entry>         _filteredEntries = new ArrayList<Entry>();
   private int                 _filter = ALL;
+  private Float               _filterValue = null;
   private boolean             _changed = false;
 
   public boolean getChanged()
@@ -168,7 +169,7 @@ public class EntryTableModel extends AbstractTableModel
   public void showAll()
   {
     _filter = ALL;
-    setView();
+    filter(null);
   }
 
   public void setView(Flag flag, boolean selected)
@@ -186,20 +187,16 @@ public class EntryTableModel extends AbstractTableModel
     _filteredEntries.clear();
     
     for(Entry e : _statement.getEntry())
-      if((FlagInfo.getInfo(e.getFlag()).getVal() & _filter) != 0)
+      if(((_filterValue == null) || (e.getValue() == _filterValue)) && ((FlagInfo.getInfo(e.getFlag()).getVal() & _filter) != 0))
         _filteredEntries.add(e);
 
     refresh();
   }
 
-  public void filter(float f)
+  public void filter(Float f)
   {
-    _filteredEntries.clear();
+    _filterValue = f;
     
-    for(Entry e : _statement.getEntry())
-      if(e.getValue() == f && e.getFlag() == Flag.NONE)
-        _filteredEntries.add(e);
-
-    refresh();
+    setView();
   }
 }

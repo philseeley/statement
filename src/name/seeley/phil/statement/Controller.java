@@ -4,13 +4,11 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.AbstractButton;
-import javax.swing.ButtonModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,7 +32,6 @@ public class Controller
   private JFileChooser      _importFileChooser;
   private JFileChooser      _fileChooser;
   private EntryTableModel   _tableModel = new EntryTableModel();
-  private List<ButtonModel> _viewModels = new ArrayList<ButtonModel>();
 
   private class EntryComparitor implements Comparator<Entry>
   {
@@ -99,11 +96,6 @@ public class Controller
     return _tableModel;
   }
 
-  public List<ButtonModel> getViewModels()
-  {
-    return _viewModels;
-  }
-  
   public void exit()
   {
     if(_tableModel.getChanged())
@@ -229,7 +221,7 @@ public class Controller
       
       Collections.sort(_tableModel.getStatement().getEntry(), new EntryComparitor());
       
-      showAll();
+      _frame.showAll();
     }
   }
 
@@ -239,11 +231,13 @@ public class Controller
       _tableModel.delete(entriesI);
   }
 
+  public void filter(Float f)
+  {
+    _tableModel.filter(f);
+  }
+
   public void showAll()
   {
-    for(ButtonModel bm : _viewModels)
-      bm.setSelected(true);
-    
     _tableModel.showAll();
   }
 
