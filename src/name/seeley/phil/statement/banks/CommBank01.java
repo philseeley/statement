@@ -57,7 +57,7 @@ public class CommBank01 implements Bank
       if(v.charAt(0) == '+')
         v = v.substring(1);
       
-      e.setValue(nf.parse(v).floatValue());
+      e.setValue(nf.parse(v).floatValue()*-1);
 
       entries.add(e);
     }
