@@ -20,7 +20,7 @@
   </target>
   <target name="compile">
     <mkdir dir="${bin.dir}" />
-    <javac destdir="${bin.dir}">
+    <javac includeantruntime="false" destdir="${bin.dir}">
       <src path="${src.dir}" />
     </javac>
   </target>
@@ -34,7 +34,7 @@
         <attribute name="Main-Class" value="name.seeley.phil.statement.Main" />
       </manifest>
     </jar>
-    <exec executable="cat" failonerror="true" output="${unixexec}">
+    <exec executable="cat" failonerror="true" output="${unixexec}" error="/dev/null">
         <arg line="statement.head ${jar}" />
     </exec>
     <exec executable="chmod" failonerror="true">

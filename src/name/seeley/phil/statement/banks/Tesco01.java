@@ -32,30 +32,37 @@ public class Tesco01 implements Bank
 
     BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), "ISO-8859-1"));
       
-    r.readLine(); // Discard header comment line
-    
-    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
-    NumberFormat nf = DecimalFormat.getCurrencyInstance();
-    
-    String l;
-    while((l = r.readLine()) != null)
+    try
     {
-      String[] t = l.split("\t");
-
-      Date d = df.parse(t[0]);
+      r.readLine(); // Discard header comment line
       
-      GregorianCalendar c = new GregorianCalendar();
-      c.setTime(d);
+      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+      NumberFormat nf = DecimalFormat.getCurrencyInstance();
       
-      XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-
-      Entry e = factory.createEntry();
-
-      e.setDate(xc);
-      e.setDescr(t[1]+" - "+t[2]);
-      e.setValue(nf.parse(t[4]).floatValue());
-      
-      entries.add(e);
+      String l;
+      while((l = r.readLine()) != null)
+      {
+        String[] t = l.split("\t");
+  
+        Date d = df.parse(t[0]);
+        
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(d);
+        
+        XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+  
+        Entry e = factory.createEntry();
+  
+        e.setDate(xc);
+        e.setDescr(t[1]+" - "+t[2]);
+        e.setValue(nf.parse(t[4]).floatValue());
+        
+        entries.add(e);
+      }
+    }
+    finally
+    {
+      r.close();
     }
     
     return entries;

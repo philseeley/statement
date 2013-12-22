@@ -31,28 +31,35 @@ public class TescoPDF01 implements Bank
 
     BufferedReader r = new BufferedReader(new FileReader(file));
       
-    SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
-    NumberFormat nf = DecimalFormat.getInstance();
-    
-    String l;
-    while((l = r.readLine()) != null)
+    try
     {
-      String[] t = l.split(",");
-
-      Date d = df.parse(t[0]);
+      SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
+      NumberFormat nf = DecimalFormat.getInstance();
       
-      GregorianCalendar c = new GregorianCalendar();
-      c.setTime(d);
-      
-      XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-
-      Entry e = factory.createEntry();
-
-      e.setDate(xc);
-      e.setDescr(t[1]);
-      e.setValue(nf.parse(t[2]).floatValue());
-      
-      entries.add(e);
+      String l;
+      while((l = r.readLine()) != null)
+      {
+        String[] t = l.split(",");
+  
+        Date d = df.parse(t[0]);
+        
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(d);
+        
+        XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+  
+        Entry e = factory.createEntry();
+  
+        e.setDate(xc);
+        e.setDescr(t[1]);
+        e.setValue(nf.parse(t[2]).floatValue());
+        
+        entries.add(e);
+      }
+    }
+    finally
+    {
+      r.close();
     }
     
     return entries;

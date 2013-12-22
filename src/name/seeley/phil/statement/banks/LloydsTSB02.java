@@ -31,39 +31,46 @@ public class LloydsTSB02 implements Bank
 
     BufferedReader r = new BufferedReader(new FileReader(file));
 
-    r.readLine(); // Discard header comment line
-    
-    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
-    NumberFormat nf = DecimalFormat.getInstance();
-    
-    String l;
-    while((l = r.readLine()) != null)
+    try
     {
-      String[] t = l.split(",");
-
-      Date d = df.parse(t[0]);
+      r.readLine(); // Discard header comment line
       
-      GregorianCalendar c = new GregorianCalendar();
-      c.setTime(d);
+      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+      NumberFormat nf = DecimalFormat.getInstance();
       
-      XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-
-      Entry e = factory.createEntry();
-
-      e.setDate(xc);
-      
-      e.setDescr(String.format("%3s - %s", t[1], t[4]));
-      
-      String v;
-      
-      if(t[5].length() == 0)
-        v = t[6];
-      else
-        v = "-"+t[5];
-      
-      e.setValue(nf.parse(v).floatValue());
-      
-      entries.add(e);
+      String l;
+      while((l = r.readLine()) != null)
+      {
+        String[] t = l.split(",");
+  
+        Date d = df.parse(t[0]);
+        
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(d);
+        
+        XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+  
+        Entry e = factory.createEntry();
+  
+        e.setDate(xc);
+        
+        e.setDescr(String.format("%3s - %s", t[1], t[4]));
+        
+        String v;
+        
+        if(t[5].length() == 0)
+          v = t[6];
+        else
+          v = "-"+t[5];
+        
+        e.setValue(nf.parse(v).floatValue());
+        
+        entries.add(e);
+      }
+    }
+    finally
+    {
+      r.close();
     }
     
     return entries;

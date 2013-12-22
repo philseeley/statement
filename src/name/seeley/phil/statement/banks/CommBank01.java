@@ -30,36 +30,46 @@ public class CommBank01 implements Bank
     List<Entry> entries = new ArrayList<Entry>();
 
     BufferedReader r = new BufferedReader(new FileReader(file));
-
-    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-    NumberFormat nf = DecimalFormat.getInstance();
     
-    String l;
-    while((l = r.readLine()) != null)
+    try
     {
-      String[] t = l.split(",");
-
-      Date d = df.parse(t[0]);
+      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+      NumberFormat nf = DecimalFormat.getInstance();
       
-      GregorianCalendar c = new GregorianCalendar();
-      c.setTime(d);
-      
-      XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-
-      Entry e = factory.createEntry();
-
-      e.setDate(xc);
-
-      e.setDescr(t[2].substring(1, t[2].length()-1));
-      
-      String v = t[1].substring(1, t[1].length()-1);
-      
-      if(v.charAt(0) == '+')
-        v = v.substring(1);
-      
-      e.setValue(nf.parse(v).floatValue()*-1);
-
-      entries.add(e);
+      String l;
+      while((l = r.readLine()) != null)
+      {
+        String[] t = l.split(",");
+  
+        if(t.length >= 3)
+        {
+          Date d = df.parse(t[0]);
+          
+          GregorianCalendar c = new GregorianCalendar();
+          c.setTime(d);
+          
+          XMLGregorianCalendar xc = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+    
+          Entry e = factory.createEntry();
+    
+          e.setDate(xc);
+    
+          e.setDescr(t[2].substring(1, t[2].length()-1));
+          
+          String v = t[1].substring(1, t[1].length()-1);
+          
+          if(v.charAt(0) == '+')
+            v = v.substring(1);
+          
+          e.setValue(nf.parse(v).floatValue()*-1);
+    
+          entries.add(e);
+        }
+      }
+    }
+    finally
+    {
+      r.close();
     }
     
     return entries;
