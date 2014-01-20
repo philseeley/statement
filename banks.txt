@@ -3,3 +3,5 @@ name.seeley.phil.statement.banks.LloydsTSB01
 name.seeley.phil.statement.banks.LloydsTSB02
 name.seeley.phil.statement.banks.Tesco01
 name.seeley.phil.statement.banks.TescoPDF01
+name.johnson.kim.statement.banks.Amex01
+name.johnson.kim.statement.banks.BigSky01
