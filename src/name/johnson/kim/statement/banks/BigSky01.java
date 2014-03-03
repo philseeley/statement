@@ -6,6 +6,7 @@ import java.io.FileReader;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -60,9 +61,16 @@ public class BigSky01 implements Bank
           
           String v = t[3];
           
-          e.setValue(nf.parse(v).floatValue()*-1);
+          try
+          { 
+            e.setValue(nf.parse(v).floatValue()*-1);
     
-          entries.add(e);
+            entries.add(e);
+          }
+          catch(ParseException f)
+          {
+            System.out.println("Unparseable line due to missing value - probably an ATM Enquiry. Entry skipped.");
+          }
         }
       }
     }
