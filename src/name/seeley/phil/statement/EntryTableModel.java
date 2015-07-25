@@ -44,16 +44,11 @@ public class EntryTableModel extends AbstractTableModel
   private List<Entry>         _filteredEntries = new ArrayList<Entry>();
   private int                 _filter = ALL;
   private Float               _filterValue = null;
-  private boolean             _changed = false;
+  private Controller          _controller;
 
-  public boolean getChanged()
+  public void setController(Controller controller)
   {
-    return _changed;
-  }
-  
-  public void setChanged(boolean changed)
-  {
-    _changed = changed;
+    _controller = controller;
   }
   
   public void setStatement(Statement statement)
@@ -61,7 +56,6 @@ public class EntryTableModel extends AbstractTableModel
     _statement = statement;
     _filteredEntries.clear();
     _filteredEntries.addAll(_statement.getEntry());
-    setChanged(false);
     refresh();
   }
 
@@ -74,7 +68,7 @@ public class EntryTableModel extends AbstractTableModel
   {
     _filteredEntries.get(row).setFlag(flag);
     fireTableCellUpdated(row, 4);
-    setChanged(true);
+    _controller.setChanged(true);
   }
 
   public void delete(int entriesI[])
@@ -87,7 +81,7 @@ public class EntryTableModel extends AbstractTableModel
     _filteredEntries.removeAll(entries);
     _statement.getEntry().removeAll(entries);
 
-    setChanged(true);
+    _controller.setChanged(true);
     
     refresh();
   }

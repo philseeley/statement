@@ -3,6 +3,7 @@ package name.seeley.phil.statement;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ public class Controller
   private JFileChooser      _importFileChooser;
   private JFileChooser      _fileChooser;
   private EntryTableModel   _tableModel = new EntryTableModel();
+  private boolean           _changed = false;
 
   private class EntryComparitor implements Comparator<Entry>
   {
@@ -44,12 +46,14 @@ public class Controller
   
   public Controller() throws Exception
   {
+    _tableModel.setController(this);
+
     _marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
     _tableModel.setStatement(_objectFactory.createStatement());
-    
     _frame = new Frame(this);
-    
+    setChanged(false);
+
     _importFileChooser = new JFileChooser();
     _importFileChooser.setAcceptAllFileFilterUsed(false);
     _importFileChooser.setMultiSelectionEnabled(true);
@@ -96,9 +100,34 @@ public class Controller
     return _tableModel;
   }
 
+  public boolean getChanged()
+  {
+    return _changed;
+  }
+  
+  public void setChanged(boolean changed)
+  {
+    _changed = changed;
+
+    String title = "";
+
+    try
+    {
+      if (_file != null)
+        title = _file.getCanonicalPath();
+    } catch (IOException e)
+    {
+      showError(e);
+    }
+    if (_changed)
+      title += "*";
+
+    _frame.setTitle(title);
+  }
+  
   public void exit()
   {
-    if(_tableModel.getChanged())
+    if(getChanged())
       if(showConfirm("Discard changes and exit?") != JOptionPane.YES_OPTION)
         return;
 
@@ -111,13 +140,12 @@ public class Controller
     {
       _file = f;
       
-      _frame.setTitle(_file.getCanonicalPath());
-
       _fileChooser.setCurrentDirectory(_file.getParentFile());
       
       Statement s = (Statement) _unMarshaller.unmarshal(f);
   
       _tableModel.setStatement(s);
+      setChanged(false);
       
       _frame.showAll();
     }
@@ -129,7 +157,7 @@ public class Controller
   
   public void openFile()
   {
-    if(_tableModel.getChanged())
+    if(getChanged())
       if(showConfirm("Discard changes?") != JOptionPane.YES_OPTION)
         return;
 
@@ -149,7 +177,7 @@ public class Controller
       _marshaller.marshal(_tableModel.getStatement(), os);
       os.close();
         
-      _tableModel.setChanged(false);
+      setChanged(false);
 
       _frame.setTitle(_file.getCanonicalPath());
       
@@ -211,7 +239,7 @@ public class Controller
           }
           
           _tableModel.getStatement().getEntry().addAll(el);
-          _tableModel.setChanged(true);
+          setChanged(true);
         }
         catch(Exception e)
         {
