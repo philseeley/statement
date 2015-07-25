@@ -36,7 +36,7 @@ public class BigSky01 implements Bank
     {
       SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
       NumberFormat nf = DecimalFormat.getInstance();
-//read first line and discard as its just the account number     
+      //read first line and discard as its just the account number     
       r.readLine();
  
       String l;
