@@ -1,4 +1,5 @@
 name.seeley.phil.statement.banks.CommBank01
+name.seeley.phil.statement.banks.Barclays01
 name.seeley.phil.statement.banks.LloydsTSB01
 name.seeley.phil.statement.banks.LloydsTSB02
 name.seeley.phil.statement.banks.Tesco01
