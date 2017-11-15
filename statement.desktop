@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Statement
+Comment=Manage bank statements
+Exec=statement %F
+Icon=/usr/local/share/icons/statement.png
+#Terminal=false
+Type=Application
+#NoDisplay=true
+#StartupNotify=true
