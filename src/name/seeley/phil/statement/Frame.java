@@ -130,6 +130,10 @@ public class Frame extends JFrame
 
     toolBar.addSeparator();
 
+    a = new AbstractAction("Receipts", IconUtil.load("emblem-documents"))
+    {public void actionPerformed(ActionEvent e){_controller.showReceipts();}};
+    addAction(a, viewMenu, null, 0, 0);
+
     a = new AbstractAction("Show All", IconUtil.load("view-refresh"))
     {public void actionPerformed(ActionEvent e){showAll();}};
     addAction(a, viewMenu, toolBar, 0, 0);
@@ -160,7 +164,7 @@ public class Frame extends JFrame
     {
       public void keyTyped(KeyEvent k)
       {
-        if("0123456789.".indexOf(k.getKeyChar()) == -1)
+        if("-0123456789.".indexOf(k.getKeyChar()) == -1)
           k.consume();
       }
     });
@@ -168,7 +172,7 @@ public class Frame extends JFrame
     // The filter can be started by simply pressing return.
     
     a = new AbstractAction("Filter", IconUtil.load("edit-find"))
-    {public void actionPerformed(ActionEvent e){filter();}};
+    {public void actionPerformed(ActionEvent e){filter(null);}};
     addAction(a, viewMenu, toolBar, KeyEvent.VK_ENTER, 0);
 
     a = new AbstractAction("Clear", IconUtil.load("edit-clear"))
@@ -304,11 +308,15 @@ public class Frame extends JFrame
     _controller.delete(modelEntriesI);
   }
 
-  private void filter()
+  public void filter(Float receiptValue)
   {
     try
     {
-      float f = Float.parseFloat(_filterField.getText());
+      float f;
+      if (receiptValue == null)
+        f = Float.parseFloat(_filterField.getText());
+      else
+        f = receiptValue.floatValue();
   
       _controller.filter(f);
       

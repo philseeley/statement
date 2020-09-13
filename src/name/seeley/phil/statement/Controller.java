@@ -29,10 +29,13 @@ public class Controller
   private Marshaller        _marshaller = _jaxbContext.createMarshaller();
   private Unmarshaller      _unMarshaller = _jaxbContext.createUnmarshaller();
   private Frame             _frame;
-  private File				_file;
+  private ReceiptsFrame     _receiptsFrame;
+  private File              _file;
   private JFileChooser      _importFileChooser;
+  private JFileChooser      _importReceiptsFileChooser;
   private JFileChooser      _fileChooser;
   private EntryTableModel   _tableModel = new EntryTableModel();
+  private EntryTableModel   _receiptsTableModel = new EntryTableModel();
   private boolean           _changed = false;
 
   private class EntryComparitor implements Comparator<Entry>
@@ -47,19 +50,29 @@ public class Controller
   public Controller() throws Exception
   {
     _tableModel.setController(this);
+    _receiptsTableModel.setController(this);
 
     _marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
     _tableModel.setStatement(_objectFactory.createStatement());
+    _receiptsTableModel.setStatement(_objectFactory.createStatement());
+
     _frame = new Frame(this);
+    _receiptsFrame = new ReceiptsFrame(this);
     setChanged(false);
 
     _importFileChooser = new JFileChooser();
     _importFileChooser.setAcceptAllFileFilterUsed(false);
     _importFileChooser.setMultiSelectionEnabled(true);
-    
+
     for(Bank p : Banks.getBanks())
       _importFileChooser.addChoosableFileFilter(new BankFilter(p));
+
+    _importReceiptsFileChooser = new JFileChooser();
+    _importReceiptsFileChooser.setAcceptAllFileFilterUsed(false);
+    _importReceiptsFileChooser.setMultiSelectionEnabled(true);
+
+    _importReceiptsFileChooser.addChoosableFileFilter(new BankFilter(new Receipts01()));
 
     _fileChooser = new JFileChooser();
     _fileChooser.setAcceptAllFileFilterUsed(false);
@@ -98,6 +111,11 @@ public class Controller
   public EntryTableModel getTableModel()
   {
     return _tableModel;
+  }
+
+  public EntryTableModel getReceiptsTableModel()
+  {
+    return _receiptsTableModel;
   }
 
   public boolean getChanged()
@@ -253,15 +271,60 @@ public class Controller
     }
   }
 
+  public void importReceipts()
+  {
+    if(_importReceiptsFileChooser.showOpenDialog(_frame) == JFileChooser.APPROVE_OPTION)
+    {
+      BankFilter p = (BankFilter) _importReceiptsFileChooser.getFileFilter();
+
+      File[] files = _importReceiptsFileChooser.getSelectedFiles();
+
+      for(File f : files)
+      {
+        try
+        {
+          List<Entry> el = p.getBank().parse(_objectFactory, f);
+
+          for(Entry e : el)
+          {
+            e.setBankTLA(p.getBank().bankTLA());
+            e.setFlag(Flag.NONE);
+          }
+
+          _receiptsTableModel.getStatement().getEntry().addAll(el);
+        }
+        catch(Exception e)
+        {
+          showError(e);
+        }
+      }
+
+      _receiptsTableModel.showAll();
+      _receiptsFrame.setVisible(true);
+    }
+  }
+
+  public void showReceipts()
+  {
+    _receiptsFrame.setSize(900, 600);
+    _receiptsFrame.setVisible(true);
+  }
+
   public void delete(int entriesI[])
   {
-    if(showConfirm("Delete the selected enrties?") == JOptionPane.YES_OPTION)
+    if(showConfirm("Delete the selected entries?") == JOptionPane.YES_OPTION)
       _tableModel.delete(entriesI);
   }
 
   public void filter(Float f)
   {
     _tableModel.filter(f);
+  }
+
+  public void receiptFilter(Float f)
+  {
+    _frame.filter(f);
+    _frame.setVisible(true);
   }
 
   public void showAll()
