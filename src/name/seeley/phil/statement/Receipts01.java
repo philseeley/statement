@@ -22,7 +22,7 @@ import name.seeley.phil.statement.Bank;
 public class Receipts01 implements Bank
 {
   static private final String FILE_EXT = "csv";
-  static private final String BANK_TLA = "";
+  static private final String BANK_TLA = "RCPT";
 
   @Override
   public List<Entry> parse(ObjectFactory factory, File file) throws Exception
@@ -33,7 +33,7 @@ public class Receipts01 implements Bank
 
     try
     {
-      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
       NumberFormat nf = DecimalFormat.getInstance();
 
       String l;
@@ -53,12 +53,8 @@ public class Receipts01 implements Bank
           Entry e = factory.createEntry();
 
           e.setDate(xc);
-
-          e.setDescr(t[2].substring(1, t[2].length()-1));
-
-          String v = t[1].substring(1, t[1].length()-1);
-
-          e.setValue(nf.parse(v).floatValue());
+          e.setValue(nf.parse(t[1]).floatValue());
+          e.setDescr(t[2]);
 
           entries.add(e);
         }
