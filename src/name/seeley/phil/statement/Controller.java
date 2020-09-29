@@ -3,6 +3,8 @@ package name.seeley.phil.statement;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -32,7 +34,7 @@ public class Controller
   private ReceiptsFrame     _receiptsFrame;
   private File              _file;
   private JFileChooser      _importFileChooser;
-  private JFileChooser      _importReceiptsFileChooser;
+  private JFileChooser      _receiptsFileChooser;
   private JFileChooser      _fileChooser;
   private EntryTableModel   _tableModel = new EntryTableModel();
   private EntryTableModel   _receiptsTableModel = new EntryTableModel();
@@ -68,11 +70,11 @@ public class Controller
     for(Bank p : Banks.getBanks())
       _importFileChooser.addChoosableFileFilter(new BankFilter(p));
 
-    _importReceiptsFileChooser = new JFileChooser();
-    _importReceiptsFileChooser.setAcceptAllFileFilterUsed(false);
-    _importReceiptsFileChooser.setMultiSelectionEnabled(true);
+    _receiptsFileChooser = new JFileChooser();
+    _receiptsFileChooser.setAcceptAllFileFilterUsed(false);
+    _receiptsFileChooser.setMultiSelectionEnabled(true);
 
-    _importReceiptsFileChooser.addChoosableFileFilter(new BankFilter(new Receipts01()));
+    _receiptsFileChooser.addChoosableFileFilter(new BankFilter(new Receipts01()));
 
     _fileChooser = new JFileChooser();
     _fileChooser.setAcceptAllFileFilterUsed(false);
@@ -273,11 +275,11 @@ public class Controller
 
   public void importReceipts()
   {
-    if(_importReceiptsFileChooser.showOpenDialog(_frame) == JFileChooser.APPROVE_OPTION)
+    if(_receiptsFileChooser.showOpenDialog(_frame) == JFileChooser.APPROVE_OPTION)
     {
-      BankFilter p = (BankFilter) _importReceiptsFileChooser.getFileFilter();
+      BankFilter p = (BankFilter) _receiptsFileChooser.getFileFilter();
 
-      File[] files = _importReceiptsFileChooser.getSelectedFiles();
+      File[] files = _receiptsFileChooser.getSelectedFiles();
 
       for(File f : files)
       {
@@ -301,6 +303,42 @@ public class Controller
 
       _receiptsTableModel.showAll();
       _receiptsFrame.setVisible(true);
+    }
+  }
+
+  public void saveReceipts()
+  {
+    if(_receiptsFileChooser.showSaveDialog(_frame) == JFileChooser.APPROVE_OPTION)
+    {
+      File f = _receiptsFileChooser.getSelectedFile();
+
+      String ext = "."+Receipts01.FILE_EXT;
+
+      if(f.getName().lastIndexOf(ext) == -1)
+        f = new File(f.getAbsolutePath()+ext);
+
+      if(f.exists())
+          if(showConfirm("Overwrite file '"+f.getName()+"?") != JOptionPane.YES_OPTION)
+            return;
+
+      try
+      {
+        PrintWriter w = new PrintWriter(new FileWriter(f));
+
+        try {
+          for (Entry e : _receiptsTableModel.getStatement().getEntry()) {
+            w.printf("%04d-%02d-%02d,%.2f,%s\n", e.getDate().getYear(), e.getDate().getMonth(), e.getDate().getDay(), e.getValue(), e.getDescr());
+          }
+        }
+        finally
+        {
+          w.close();
+        }
+      }
+      catch(Exception e)
+      {
+        showError(e);
+      }
     }
   }
 

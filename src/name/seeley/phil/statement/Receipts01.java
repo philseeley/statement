@@ -21,7 +21,7 @@ import name.seeley.phil.statement.Bank;
 
 public class Receipts01 implements Bank
 {
-  static private final String FILE_EXT = "csv";
+  static final String FILE_EXT = "csv";
   static private final String BANK_TLA = "RCPT";
 
   @Override

@@ -67,11 +67,15 @@ public class ReceiptsFrame extends JFrame
     {public void actionPerformed(ActionEvent e){_controller.importReceipts();}};
     addAction(a, fileMenu, toolBar, KeyEvent.VK_I, ActionEvent.CTRL_MASK);
 
+    a = new AbstractAction("Save Receipts", IconUtil.load("document-save"))
+    {public void actionPerformed(ActionEvent e){_controller.saveReceipts();}};
+    addAction(a, fileMenu, toolBar, KeyEvent.VK_S, ActionEvent.CTRL_MASK);
+
     a = new AbstractAction("Find", IconUtil.load("edit-find"))
     {public void actionPerformed(ActionEvent e){find();}};
     addAction(a, fileMenu, toolBar, KeyEvent.VK_F, ActionEvent.CTRL_MASK);
 
-    a = new AbstractAction("Find", IconUtil.load("user-trash"))
+    a = new AbstractAction("Delete", IconUtil.load("user-trash"))
     {public void actionPerformed(ActionEvent e){delete();}};
     addAction(a, fileMenu, toolBar, KeyEvent.VK_D, ActionEvent.CTRL_MASK);
   }
